@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แจ้งเตือนเมื่อ AQI สูง</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Smooth scrolling for the entire page */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* พื้นหลังสีเทาอ่อน */
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent unwanted horizontal scroll */
+        }
+
+        /* Keyframes for Slide Down animation on initial page load */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px); /* Start 20px above */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Move to normal position */
+            }
+        }
+
+        /* Keyframes for Fade In Up animation on scroll */
+        @keyframes fadeInUpOnScroll {
+            from {
+                opacity: 0;
+                transform: translateY(40px); /* Start 40px below */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Move to normal position */
+            }
+        }
+
+        /* Apply Slide Down animation to the main content container on initial load */
+        .animated-content-initial {
+            animation: slideDown 0.8s ease-out forwards;
+            opacity: 0; /* Hide content initially */
+        }
+
+        /* Initial state for cards that will animate on scroll */
+        .card.fade-in-on-scroll {
+            opacity: 0; /* Hide card initially */
+            transform: translateY(40px); /* Start position below normal */
+            /* Smooth transition for opacity and transform */
+            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+        }
+
+        /* State when card is visible in the viewport and animation applies */
+        .card.fade-in-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #2c3e50; /* Dark blue-gray */
+            margin-bottom: 1.5rem; /* mb-6 */
+            text-align: center;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            padding: 2rem; /* p-8 */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .notification-example {
+            background-color: #fff3cd; /* สีเหลืองอ่อน */
+            border-left: 5px solid #ffc107; /* เส้นขอบซ้ายสีเหลือง */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            color: #664d03; /* สีน้ำตาลเข้ม */
+        }
+        .notification-example2 {
+            background-color: #ffcdcd; /* สีแดงอ่อน */
+            border-left: 5px solid #ff0707; /* เส้นขอบซ้ายสีแดง */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            color: #660303; /* สีแดงเข้ม */
+        }
+
+        /* Styles for scroll buttons */
+        .scroll-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 9999px; /* full rounded */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        .scroll-button:hover {
+            background-color: #2563eb; /* blue-700 */
+        }
+        #backToTopBtn {
+            right: 80px; /* Adjust position for two buttons */
+            display: none; /* Hidden by default */
+        }
+        .page-dot {
+            background-color: #e0e7ef;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .page-dot.active {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #bfdbfe;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+    <div class="max-w-4xl mx-auto animated-content-initial">
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold text-orange-700 mb-4">
+                2/. การแจ้งเตือน
+            </h1>
+            <p class="text-lg text-gray-600">
+                Idea : แอปแสดงคุณภาพอากาศแบบเรียลไทม์
+            </p>
+
+            <nav class="mt-4 flex justify-center gap-3">
+                <a href="index.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-home"></a>
+                <a href="idea1.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-1"></a>
+                <a href="idea2.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-2"></a>
+                <a href="idea3.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-3"></a>
+                <a href="idea4.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-4"></a>
+                <a href="idea5.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-5"></a>
+            </nav>
+        </header>
+
+        <section class="space-y-8">
+            <!-- ส่วน: การแจ้งเตือนส่วนบุคคล -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">การแจ้งเตือน</h2>
+                <p class="text-lg text-gray-700 mb-4">
+                    เมื่อค่า AQI (ดัชนีคุณภาพอากาศ) ในพื้นที่ใด ๆ สูงเกินกว่าค่าที่เหมาะสมกับผู้ใช้แต่ละคน <br> แอปพลิเคชันจะส่งแจ้งเตือนทันที
+                </p>
+                <div class="notification-example">
+                    <p><strong>⚠️ แจ้งเตือน:</strong> พื้นที่ตึก 11 ตอนนี้ค่า AQI = 95 สูงกว่าค่าปลอดภัยสำหรับผู้เป็นภูมิแพ้</p>
+                </div>
+                <p class="text-lg text-gray-700 mt-6 mb-4">
+                    ระบบจะให้ผู้ใช้กรอก "โปรไฟล์สุขภาพ" เมื่อสมัครใช้งาน เช่น :
+                </p>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-2 pl-4">
+                    <li><strong>โรคประจำตัว :</strong> ภูมิแพ้ / หอบหืด / ไม่มีโรค</li>
+                    <li><strong>ความไวต่อสิ่งกระตุ้น : </strong> กลิ่น / ฝุ่น / ควัน</li>
+                </ul>
+            </section>
+
+            <!-- ส่วน: ทำไมสำคัญ (สำหรับแจ้งเตือนส่วนบุคคล) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">ประโยชน์ของระบบการแจ้งเตือน</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">คนแต่ละคนมีความเสี่ยงต่างกัน <br> :</span>
+                        นักศึกษา/บุคลากรผู้ซึ่งไวต่อฝุ่นและกลิ่นไม่ควรได้รับข้อมูลการแจ้งเตือนแบบเดียวกับคนทั่วไป <br>
+                        การแจ้งเตือนที่ปรับให้เข้ากับแต่ละบุคคลจึงมีความสำคัญเพื่อให้ผู้ไวต่อสิ่งกระตุ้นเหล่านี้ได้รับข้อมูลที่เหมาะสม
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">ปรับการเตือนให้ตรงกับสุขภาพ <br> :</span>
+                        ผู้ใช้จะได้รับการแจ้งเตือนที่เกี่ยวข้องกับสุขภาพของตนเองโดยตรง <br>
+                        ทำให้รู้สึกปลอดภัยและลดความกังวล เช่น <br> นักศึกษาที่เป็นภูมิแพ้จะได้รับการแจ้งเตือนเมื่อค่า AQI เกิน 50 ไมโครกรัม/ลูกบาศก์เมตร
+                    </li>
+                </ul>
+            </section>
+
+            <!-- ส่วน: ทำยังไง (สำหรับแจ้งเตือนส่วนบุคคล) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">การดำเนินงานของระบบ การแจ้งเตือน</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">ใช้ระบบ Notification (Push) ที่เชื่อมกับฐานข้อมูลผู้ใช้ <br> :</span>
+                        พัฒนากาแจ้งเตือนแบบพุชที่สามารถส่งตรงถึงอุปกรณ์ของผู้ใช้แต่ละคน (ลักษณะ pop-up) <br>
+                        โดยดึงข้อมูล "โปรไฟล์สุขภาพ" จากฐานข้อมูล
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">ตั้งค่าคุณภาพอากาศที่แตกต่างกันเฉพาะตามโรค <br> :</span>
+                        กำหนดค่าเกณฑ์ คุณภาพอากาศที่แตกต่างกันสำหรับผู้ใช้แต่ละกลุ่ม
+                        ตามข้อมูลโปรไฟล์สุขภาพที่ได้กรอกไว้ เช่น :
+                        <ul class="list-circle list-inside text-base text-gray-600 mt-2 pl-4">
+                            <li>สำหรับผู้เป็นภูมิแพ้: หากค่า AQI เกิน 50 ไมโครกรัม/ลูกบาศก์เมตร จะส่งการแจ้งเตือน</li>
+                            <li>สำหรับคนทั่วไป: หากค่า AQI เกิน 100 ไมโครกรัม/ลูกบาศก์เมตร จึงจะส่งการแจ้งเตือน</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- ส่วน: ระบบ Cell Broadcast -->
+            <section class="card fade-in-on-scroll mt-20">
+                <h2 class="section-title text-blue-700">ระบบ Cell Broadcast : การแจ้งเตือนฉุกเฉิน</h2>
+                <p class="text-center text-2xl text-gray-700 mb-4">(หากทำได้)</p>
+                <p class="text-lg text-gray-700 mb-4">
+                    เมื่อค่า AQI ส่งผลกระทบต่อสุขภาพในระดับที่อันตรายต่อคนส่วนใหญ่ หรือมีเหตุการณ์มลพิษทางอากาศรุนแรง
+                    ระบบจะส่งการแจ้งเตือนผ่าน Cell Broadcast ไปยังโทรศัพท์มือถือในพื้นที่ที่ได้รับผลกระทบทันที <br>
+                    โดยจะมีการสั่นและเสียงแจ้งเตือนที่แตกต่างจากการแจ้งเตือนทั่วไป เพื่อดึงดูดความสนใจของผู้ใช้
+                </p>
+                <div class="notification-example2">
+                    <p><strong>🚨 แจ้งเตือนฉุกเฉิน:</strong> คุณภาพอากาศในพื้นที่มหาวิทยาลัยอยู่ในระดับอันตราย (AQI สูงมาก) <br> โปรดหลีกเลี่ยงกิจกรรมกลางแจ้ง และสวมหน้ากากอนามัย</p>
+                </div>
+                <p class="text-lg text-gray-700 mt-6 mb-4">
+                    การแจ้งเตือนนี้จะถูกส่งไปยังอุปกรณ์มือถือทุกเครื่องในพื้นที่ที่กำหนด โดยไม่จำเป็นต้องติดตั้งแอปพลิเคชัน
+                    หรือเชื่อมต่ออินเทอร์เน็ต ทำให้สามารถเข้าถึงผู้ใช้งานได้ในวงกว้างและรวดเร็วในสถานการณ์ฉุกเฉิน
+                </p>
+            </section>
+
+            <!-- ส่วน: ทำไมสำคัญ (สำหรับ Cell Broadcast) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">ประโยชน์ของ Cell Broadcast</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">การแจ้งเตือนที่รวดเร็วและครอบคลุม <br> :</span>
+                        สามารถส่งข้อความไปยังโทรศัพท์มือถือจำนวนมากในพื้นที่เป้าหมายได้ <br>
+                        เหมาะสำหรับสถานการณ์ฉุกเฉินที่ต้องการการรับรู้ในวงกว้าง
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">เข้าถึงได้แม้ไม่มีอินเทอร์เน็ต <br> :</span>
+                        ทำงานผ่านเครือข่ายเซลลูลาร์โดยตรง(เสาส่งสัญญาณ) ไม่ต้องพึ่งพาการเชื่อมต่ออินเทอร์เน็ตหรือการติดตั้งแอปพลิเคชัน <br>
+                        ทำให้มั่นใจได้ว่าข้อความจะถึงผู้ใช้ทุกคนในพื้นที่
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">การแจ้งเตือนที่โดดเด่น <br> :</span>
+                        มีการสั่นและเสียงเตือนเฉพาะตัวที่แตกต่างจากการแจ้งเตือนปกติ <br>
+                        เพื่อให้ผู้ใช้ตระหนักถึงความสำคัญของข้อความฉุกเฉินทันที
+                    </li>
+                </ul>
+            </section>
+
+            <!-- ส่วน: ทำยังไง (สำหรับ Cell Broadcast) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">การดำเนินงานระบบ Cell Broadcast</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">การบูรณาการกับระบบโทรคมนาคม <br> :</span>
+                        ประสานงานกับผู้ให้บริการเครือข่ายโทรศัพท์มือถือเพื่อเชื่อมต่อระบบแจ้งเตือนคุณภาพอากาศ <br>
+                        เข้ากับการแจ้งเตือนแบบ Cell Broadcast
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">การตั้งค่าเกณฑ์การแจ้งเตือนฉุกเฉิน <br> :</span>
+                        กำหนดค่า AQI หรือระดับมลพิษที่ถือว่าเป็น "อันตราย" ซึ่งจะกระตุ้นให้ระบบส่ง Cell Broadcast <br>
+                        (เช่น AQI เกิน 200 หรือ PM2.5 เกิน 150)
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">การระบุพื้นที่เป้าหมาย <br> :</span>
+                        ใช้ข้อมูลตำแหน่งของเซนเซอร์และแผนที่มหาวิทยาลัยเพื่อกำหนดพื้นที่ที่จะส่ง Cell Broadcast <br>
+                        เช่น พื้นที่รอบอาคารที่มีค่า AQI สูง
+                    </li>
+                </ul>
+                <div class="flex justify-end mt-10">
+                    <div class="flex space-x-4">
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="index.html">หน้าหลัก</a>
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="idea1.html">ย้อนกลับ</a>
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="idea3.html">ถัดไป</a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="backToTopBtn" class="scroll-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+
+    <!-- Scroll to Bottom Button -->
+    <button id="goToBottomBtn" class="scroll-button" style="right: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Select all cards that should animate on scroll
+            const cards = document.querySelectorAll('.card.fade-in-on-scroll');
+
+            // Define options for Intersection Observer
+            const observerOptions = {
+                root: null, // Use the viewport as the root
+                rootMargin: '0px', // No additional margin
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            };
+
+            // Create a new Intersection Observer instance
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // If the element enters the viewport
+                        entry.target.classList.add('is-visible'); // Add class to trigger animation
+                        observer.unobserve(entry.target); // Stop observing this element once animation has run
+                    }
+                });
+            }, observerOptions);
+
+            // Start observing each card
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+
+            // Scroll to Top/Bottom functionality
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            const goToBottomBtn = document.getElementById('goToBottomBtn');
+
+            // Show/hide Back to Top button based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 200) { // Show button after scrolling down 200px
+                    backToTopBtn.style.display = 'flex';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+
+                // Hide Go to Bottom button if at the bottom
+                if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 2) {
+                    goToBottomBtn.style.display = 'none';
+                    // Move Back to Top button to the same position as Go to Bottom
+                    backToTopBtn.style.right = '20px';
+                } else {
+                    goToBottomBtn.style.display = 'flex';
+                    // Move Back to Top button to its normal position
+                    backToTopBtn.style.right = '80px';
+                }
+            });
+
+            
+
+            // Scroll to top when Back to Top button is clicked
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Scroll to bottom when Go to Bottom button is clicked
+            goToBottomBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Highlight active dot
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname.split('/').pop();
+            let activeId = 'dot-home';
+            if (path === 'idea1.html') activeId = 'dot-1';
+            else if (path === 'idea2.html') activeId = 'dot-2';
+            else if (path === 'idea3.html') activeId = 'dot-3';
+            else if (path === 'idea4.html') activeId = 'dot-4';
+            else if (path === 'idea5.html') activeId = 'dot-5';
+            document.getElementById(activeId)?.classList.add('active');
+        });
+    </script>
+</body>
+</html>

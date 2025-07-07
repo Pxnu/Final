@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถิติย้อนหลังและการแนะนำช่วงเวลาปลอดภัย</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Smooth scrolling for the entire page */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* พื้นหลังสีเทาอ่อน */
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent unwanted horizontal scroll */
+        }
+
+        /* Keyframes for Slide Down animation on initial page load */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px); /* Start 20px above */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Move to normal position */
+            }
+        }
+
+        /* Keyframes for Fade In Up animation on scroll */
+        @keyframes fadeInUpOnScroll {
+            from {
+                opacity: 0;
+                transform: translateY(40px); /* Start 40px below */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Move to normal position */
+            }
+        }
+
+        /* Apply Slide Down animation to the main content container on initial load */
+        .animated-content-initial {
+            animation: slideDown 0.8s ease-out forwards;
+            opacity: 0; /* Hide content initially */
+        }
+
+        /* Initial state for cards that will animate on scroll */
+        .card.fade-in-on-scroll {
+            opacity: 0; /* Hide card initially */
+            transform: translateY(40px); /* Start position below normal */
+            /* Smooth transition for opacity and transform */
+            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+        }
+
+        /* State when card is visible in the viewport and animation applies */
+        .card.fade-in-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2.25rem; /* ขนาดตัวอักษรใหญ่ */
+            font-weight: 700; /* ตัวหนา */
+            color: #2c3e50; /* สีน้ำเงินเทาเข้ม */
+            margin-bottom: 1.5rem; /* ระยะห่างด้านล่าง */
+            text-align: center;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* ขอบโค้ง */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* เงา */
+            padding: 2rem; /* ช่องว่างภายใน */
+            margin-bottom: 2rem; /* ระยะห่างด้านล่าง */
+        }
+        .recommendation-example {
+            background-color: #e6ffe6; /* สีเขียวอ่อน */
+            border-left: 5px solid #4CAF50; /* เส้นขอบซ้ายสีเขียว */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            color: #2e7d32; /* สีเขียวเข้ม */
+        }
+
+        /* Styles for scroll buttons */
+        .scroll-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 9999px; /* full rounded */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+        .scroll-button:hover {
+            background-color: #2563eb; /* blue-700 */
+        }
+        #backToTopBtn {
+            right: 80px; /* Adjust position for two buttons */
+            display: none; /* Hidden by default */
+        }
+        .page-dot {
+            background-color: #e0e7ef;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .page-dot.active {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #bfdbfe;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+    <div class="max-w-4xl mx-auto animated-content-initial">
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold text-teal-700 mb-4">
+                4/. สถิติย้อนหลังและ <br>การแนะนำช่วงเวลาปลอดภัย
+            </h1>
+            <p class="text-lg text-gray-600">
+                Idea : แอปแสดงคุณภาพอากาศแบบเรียลไทม์
+            </p>
+
+            <nav class="mt-4 flex justify-center gap-3">
+                <a href="index.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-home"></a>
+                <a href="idea1.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-1"></a>
+                <a href="idea2.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-2"></a>
+                <a href="idea3.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-3"></a>
+                <a href="idea4.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-4"></a>
+                <a href="idea5.html" class="page-dot w-4 h-4 rounded-full border-2 border-blue-400 transition-all duration-200 block" id="dot-5"></a>
+            </nav>
+        </header>
+
+        <section class="space-y-8">
+            <!-- ส่วน: สถิติย้อนหลังและการแนะนำช่วงเวลาปลอดภัย -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">สถิติย้อนหลังและการแนะนำช่วงเวลาปลอดภัย</h2>
+                <p class="text-lg text-gray-700 mb-4">
+                    ผู้ใช้สามารถดูข้อมูลสถิติคุณภาพอากาศย้อนหลังในรูปแบบกราฟ
+                    เพื่อทำความเข้าใจแนวโน้มและช่วงเวลาที่คุณภาพอากาศมักจะสูงหรือต่ำ
+                </p>
+                <div class="recommendation-example mb-4">
+                    <p><strong>ตัวอย่างข้อมูล:</strong> โซนลานหูกวาง มักมี AQI สูงช่วง 11.30–12.00 น.</p>
+                </div>
+                <div class="recommendation-example">
+                    <p><strong>คำแนะนำ:</strong> พรุ่งนี้หากคุณมีเรียน/พักช่วงนี้ ลองเลียงเดินผ่านแถวนั้น เพื่อเลี่ยงฝุ่นช่วงพีก</p>
+                </div>
+            </section>
+
+            <!-- ส่วน: ทำไมสำคัญ (สำหรับสถิติย้อนหลัง) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">ประโยชน์ของสถิติย้อนหลัง</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">ช่วยวางแผนการเรียน / การออกจากอาคารได้แม้ในวันอากาศไม่ดี <br>:</span>
+                        การรู้แนวโน้มคุณภาพอากาศล่วงหน้าช่วยให้ผู้ใช้สามารถปรับตารางกิจกรรม <br>
+                        หรือเลือกช่วงเวลาที่เหมาะสมในการเดินทาง เพื่อหลีกเลี่ยงการสัมผัสฝุ่น
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">ลดความเครียดจากการไม่รู้ว่าจะโดนฝุ่นเมื่อไหร่ <br>:</span>
+                        คำแนะนำที่ชัดเจนช่วยให้ผู้ใช้รู้สึกมั่นใจและควบคุมสถานการณ์ได้ดีขึ้น <br>
+                        ลดความกังวลเกี่ยวกับผลกระทบจากมลพิษทางอากาศ
+                    </li>
+                </ul>
+            </section>
+
+            <!-- ส่วน: ทำยังไง (สำหรับสถิติย้อนหลัง) -->
+            <section class="card fade-in-on-scroll">
+                <h2 class="section-title text-blue-500">การดำเนินงาน ระบบสถิติย้อนหลัง</h2>
+                <ul class="list-disc list-inside text-lg text-gray-700 space-y-3">
+                    <li>
+                        <span class="font-semibold text-gray-800">บันทึกค่าจากเซนเซอร์อากาศทุก 5–15 นาที <br>:</span>
+                        จัดเก็บข้อมูลคุณภาพอากาศจากเซนเซอร์อย่างต่อเนื่อง
+                        เพื่อสร้างฐานข้อมูลสำหรับการวิเคราะห์ย้อนหลัง
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">ใช้ Chart.js หรือ Recharts(Dependency ของ React Frame-Work) ทำกราฟย้อนหลัง 7 วัน <br>:</span>
+                        นำข้อมูลที่บันทึกไว้มาแสดงผลในรูปแบบกราฟที่เข้าใจง่าย
+                        เพื่อให้ผู้ใช้เห็นภาพรวมของคุณภาพอากาศ <br>ในช่วงเวลาที่ผ่านมา
+                    </li>
+                    <li>
+                        <span class="font-semibold text-gray-800">ระบบ AI/Pattern Detection(การหารูปแบบ) แนะนำช่วงเวลาปลอดภัย <br>:</span>
+                        พัฒนาระบบปัญญาประดิษฐ์หรือการตรวจจับรูปแบบ
+                        เพื่อวิเคราะห์ข้อมูลย้อนหลังและคาดการณ์ช่วงเวลา <br>ที่คุณภาพอากาศเหมาะสม
+                        พร้อมให้คำแนะนำเชิงรุกแก่ผู้ใช้
+                    </li>
+                </ul>
+                <div class="flex justify-end mt-10">
+                    <div class="flex space-x-4">
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="index.html">หน้าหลัก</a>
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="idea3.html">ย้อนกลับ</a>
+                        <a class="text-blue-600 hover:text-blue-800 transition-colors duration-200 underline hover:no-underline font-semibold" href="idea5.html">ถัดไป</a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="backToTopBtn" class="scroll-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
+
+    <!-- Scroll to Bottom Button -->
+    <button id="goToBottomBtn" class="scroll-button" style="right: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Select all cards that should animate on scroll
+            const cards = document.querySelectorAll('.card.fade-in-on-scroll');
+
+            // Define options for Intersection Observer
+            const observerOptions = {
+                root: null, // Use the viewport as the root
+                rootMargin: '0px', // No additional margin
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            };
+
+            // Create a new Intersection Observer instance
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // If the element enters the viewport
+                        entry.target.classList.add('is-visible'); // Add class to trigger animation
+                        observer.unobserve(entry.target); // Stop observing this element once animation has run
+                    }
+                });
+            }, observerOptions);
+
+            // Start observing each card
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+
+            // Scroll to Top/Bottom functionality
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            const goToBottomBtn = document.getElementById('goToBottomBtn');
+
+            // Show/hide Back to Top button based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 200) { // Show button after scrolling down 200px
+                    backToTopBtn.style.display = 'flex';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+
+                // Hide Go to Bottom button if at the bottom
+                if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 2) {
+                    goToBottomBtn.style.display = 'none';
+                    // Move Back to Top button to the same position as Go to Bottom
+                    backToTopBtn.style.right = '20px';
+                } else {
+                    goToBottomBtn.style.display = 'flex';
+                    // Move Back to Top button to its normal position
+                    backToTopBtn.style.right = '80px';
+                }
+            });
+
+            
+
+            // Scroll to top when Back to Top button is clicked
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Scroll to bottom when Go to Bottom button is clicked
+            goToBottomBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Highlight active dot
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname.split('/').pop();
+            let activeId = 'dot-home';
+            if (path === 'idea1.html') activeId = 'dot-1';
+            else if (path === 'idea2.html') activeId = 'dot-2';
+            else if (path === 'idea3.html') activeId = 'dot-3';
+            else if (path === 'idea4.html') activeId = 'dot-4';
+            else if (path === 'idea5.html') activeId = 'dot-5';
+            document.getElementById(activeId)?.classList.add('active');
+        });
+    </script>
+</body>
+</html>
